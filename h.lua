@@ -864,8 +864,9 @@ local function fastB64Decode(value)
     return table.concat(outParts)
 end
 
--- [local] On-screen reporting: this executor has no console, so warn() is
--- invisible. Surface progress and failures in a GUI instead.
+-- [local] On-screen ERROR reporting. This executor has no console, so warn()
+-- is invisible -- a failure must be shown or it just looks like nothing
+-- happened. Only called on failure; progress panels were removed.
 local function _moduleReport(title, body, colour)
     local pg = playerGui
     local ok, existing = pcall(function() return pg:FindFirstChild("ModuleReport") end)
@@ -914,8 +915,6 @@ local function runModule(file)
     closeModule(file)
 
     local encoded = EMBEDDED_MODULES[file]
-    _moduleReport("Loading " .. file .. "...", "decoding payload, please wait", Color3.fromRGB(18, 18, 22))
-
     local started = os.clock()
     local ok, err = pcall(function()
         if type(encoded) ~= "string" or #encoded == 0 then
@@ -930,20 +929,16 @@ local function runModule(file)
     end)
     local elapsed = os.clock() - started
 
+    -- Progress panels ("Loading ..." / "Loaded ...") were removed at the user's
+    -- request: they covered the screen every time a module started. Only a real
+    -- failure is reported now, so a genuine breakage is still visible instead of
+    -- failing silently.
     if not ok then
         _moduleReport("MODULE FAILED: " .. file,
             "elapsed: " .. string.format("%.2f", elapsed) .. "s\n\nerror:\n" .. tostring(err),
             Color3.fromRGB(60, 12, 12))
         return false
     end
-
-    _moduleReport("Loaded " .. file,
-        "took " .. string.format("%.2f", elapsed) .. "s\n\nIf the hub window does not appear, the module\nstarted but threw during its own setup.\n\nClick to dismiss.",
-        Color3.fromRGB(12, 48, 20))
-    task.delay(6, function()
-        local g = playerGui:FindFirstChild("ModuleReport")
-        if g then g:Destroy() end
-    end)
     return true
 end
 
