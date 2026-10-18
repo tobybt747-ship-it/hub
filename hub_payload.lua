@@ -1421,20 +1421,6 @@ do
         }, shopPage)
     end
 
-    local shopDiscord = create("TextButton", {
-        Name = "Discord",
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.fromOffset(84, 76),
-        Position = UDim2.new(0.5, 0, 0, 350),
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        AutoButtonColor = false,
-        Text = "",
-        ZIndex = 33,
-    }, shopPage)
-    local shopDiscordIcon = drawDiscordLogo(shopDiscord, 64)
-    shopDiscordIcon.Position = UDim2.fromScale(0.5, 0.5)
-    shopDiscordIcon.ZIndex = 35
 
     local shopStatus = create("TextLabel", {
         Name = "Status",
@@ -1867,9 +1853,6 @@ do
 
     animateButton(shopButton, shopScale, showShop, 1.16)
     animateButton(youtubeButton, youtubeScale, copyYouTube, 1.16)
-    track(shopDiscord.Activated:Connect(function()
-        copyDiscord(true)
-    end))
     animateButton(backButton, backScale, showLoader, 1.035)
     track(backButton.MouseEnter:Connect(function()
         if not closing then
